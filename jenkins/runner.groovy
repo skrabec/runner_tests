@@ -1,5 +1,7 @@
 timeout(time: 10, unit: 'MINUTES') {
     node('maven') {
+        checkout scm
+
 
         dir('jenkins') {  
             utils = load './utils.groovy'
