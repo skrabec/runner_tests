@@ -1,22 +1,22 @@
+// Define the function at the top level
+def prepare_yaml_config(config) {
+    def yaml_config = readYaml text: config
+    yaml_config.each { k, v ->
+        env[k] = v.toString()
+    }
+}
+
+// Main pipeline
 timeout(time: 10, unit: 'MINUTES') {
     node('maven') {
-        def prepare_yaml_config() {
-            // Parse YAML config to map
-            def config = readYaml text: env.CONFIG
-
-            // Iterate using proper Groovy map syntax and environment variable setting
-            config.each { k, v ->
-                env[k] = v.toString()
-            }
-        }
-
         def jobs = [:]
         
-        // Need to ensure env.TESTS is properly initialized and split if it's a string
+        // Call the function with proper parameter
+        prepare_yaml_config(env.CONFIG)
+        
         def testTypes = env.TESTS instanceof String ? env.TESTS.split(',') : env.TESTS
         
         testTypes.each { test_type ->
-            // Create proper parameter list with values
             jobs["${test_type}-tests"] = {
                 stage("Running ${test_type} tests") {
                     def parameters = [
@@ -31,7 +31,6 @@ timeout(time: 10, unit: 'MINUTES') {
             }
         }
 
-        prepare_yaml_config()
         parallel jobs
     }
 }
