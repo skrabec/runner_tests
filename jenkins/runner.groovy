@@ -1,7 +1,14 @@
 timeout(time: 10, unit: 'MINUTES') {
     node('maven') {
-        utils = load './jenikns/utils.groovy'
-        utils.prepare_yaml_config()
+        
+
+        def prepare_yaml_config() {
+            def config = readYaml text: $CONFIG
+
+            config.each( k, v -> {
+                env.setProperty(k,v)
+            })
+        }
 
         def jobs = [:]
         
