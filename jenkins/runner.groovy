@@ -1,6 +1,6 @@
 timeout(time: 10, unit: 'MINUTES') {
     node('maven') {
-        utils = load './utils.groovy'
+        utils = load './jenikns/utils.groovy'
         utils.prepare_yaml_config()
 
         def jobs = [:]
