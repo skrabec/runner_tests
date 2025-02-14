@@ -1,9 +1,16 @@
+def prepare_yaml_config() {
+    def config = readYaml text: env.CONFIG
+    
+    config.each { k, v ->  
+        env[k] = v.toString()
+    }
+}
+
 timeout(time: 10, unit: 'MINUTES') {
     node('maven') {
 
 
-        utils = load './utils.groovy'
-        utils.prepare_yaml_config()
+        prepare_yaml_config()
 
         def jobs = [:]
         for(def test_type: env.TESTS) {
@@ -12,8 +19,8 @@ timeout(time: 10, unit: 'MINUTES') {
                 stage("Running $test_type tests") {
 
                     def parameters = [
-                        "SRCSPEC", 
-                        "CONFIG"
+                        "$REFSPEC", 
+                        "$CONFIG"
                         ]
 
                     build (job: "$test_type-tests", 
