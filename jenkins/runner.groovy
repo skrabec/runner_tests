@@ -17,7 +17,7 @@ timeout(time: 10, unit: 'MINUTES') {
                         ]
 
                     build (job: "$test_type-tests", 
-                    parameters: parameters, propagate: false
+                    parameters: parameters, propagate: false)
                 }
             }
         }
