@@ -1,5 +1,9 @@
 def prepare_yaml_config() {
-    def config = readYaml text: env.CONFIG
+    def config = readYaml text: '''
+        TESTS: unit,integration
+        SRCSPEC: main
+        # Add other configuration parameters here
+    '''
     
     config.each { k, v ->  
         env[k] = v.toString()
