@@ -1,35 +1,26 @@
 timeout(5) {
     node('maven') {
         stage('Prepare') {
-            def yamlConfig = params.YAML_CONFIG?.trim() ?: '''
-            test_types:
-              - ui
-              - api
-            '''
+            def yamlConfig = config = readYaml text: env.YAML_CONFIG
             
-            def testTypes = []
-            yamlConfig.eachLine { line ->
-                if (line.trim().startsWith('-')) {
-                    def testType = line.trim().substring(1).trim()
-                    testTypes.add(testType)
-                }
+
+            if (config != null) {
+            for(param in config.entrySet()) {
+                env.setProperty(param.getKey(), param.getValue())
             }
-            
-            echo "Starting test execution for types: ${testTypes}"
-            
-            def jobs = [:]
-            
-            if (testTypes.contains('ui')) {
-                jobs['ui'] = {
-                    build(job: 'ui-tests', propagate: false)
-                }
+        }
+
+        testTypes = env.getProperty("TEST_TYPES").replace("[", "").replace("]", "").split(",\\s*")
+
+        def triggerdJobs = [:]
+
+        for (i = 0; i < testTypes.size(); i+= 1){
+            def type = testTypes[i]
+            sh "echo add ${type}"
+            triggerdJobs[type]={
+                build wait: true, job: type, parameters: [text(name: "YAML_CONFIG", value: env.YAML_CONFIG)]
             }
-            
-            if (testTypes.contains('api')) {
-                jobs['api'] = {
-                    build(job: 'api-tests', propagate: false)
-                }
-            }
+        }
 
             parallel jobs
         }
