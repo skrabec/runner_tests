@@ -1,33 +1,41 @@
 timeout(5) {
     node('maven') {
         stage('Prepare') {
-            def config = readYaml text: params.YAML_CONFIG ?: '''
-                test_types:
-                  - ui
-                  - api
-                '''
-            echo "Starting test execution for types: ${config.test_types}"
-        
-
-        def jobs = [:]
-        
-        if (params.TEST_TYPE in ['all', 'ui']) {
+            def yamlConfig = params.YAML_CONFIG?.trim() ?: '''
+            test_types:
+              - ui
+              - api
+            '''
+            
+            def testTypes = []
+            yamlConfig.eachLine { line ->
+                if (line.trim().startsWith('-')) {
+                    def testType = line.trim().substring(1).trim()
+                    testTypes.add(testType)
+                }
+            }
+            
+            echo "Starting test execution for types: ${testTypes}"
+            
+            def jobs = [:]
+            
+            if (testTypes.contains('ui')) {
                 jobs['ui'] = {
                     build(job: 'ui-tests', propagate: false)
                 }
             }
             
-        if (params.TEST_TYPE in ['all', 'api']) {
+            if (testTypes.contains('api')) {
                 jobs['api'] = {
                     build(job: 'api-tests', propagate: false)
                 }
             }
 
-        // Run both test suites in parallel
-        parallel jobs
+            parallel jobs
         }
+
         stage('Results') {
-            echo "All test jobs completed"
+            echo "All selected test jobs completed"
         }
     }
 }
