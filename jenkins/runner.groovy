@@ -10,9 +10,6 @@ timeout(5) {
         jobs['ui'] = {
             build(
                 job: 'ui-tests',
-                parameters: [
-                    string(name: 'REFSPEC', value: params.REFSPEC ?: 'homework_4')
-                ],
                 propagate: false
             )
         }
@@ -21,9 +18,6 @@ timeout(5) {
         jobs['api'] = {
             build(
                 job: 'api-tests',
-                parameters: [
-                    string(name: 'REFSPEC', value: params.REFSPEC ?: 'master')
-                ],
                 propagate: false
             )
         }
