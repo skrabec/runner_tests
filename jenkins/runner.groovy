@@ -11,21 +11,17 @@ timeout(5) {
 
         def jobs = [:]
         
-        // UI Tests job
-        jobs['ui'] = {
-            build(
-                job: 'ui-tests',
-                propagate: false
-            )
-        }
-        
-        // API Tests job
-        jobs['api'] = {
-            build(
-                job: 'api-tests',
-                propagate: false
-            )
-        }
+        if (params.TEST_TYPE in ['all', 'ui']) {
+                jobs['ui'] = {
+                    build(job: 'ui-tests', propagate: false)
+                }
+            }
+            
+        if (params.TEST_TYPE in ['all', 'api']) {
+                jobs['api'] = {
+                    build(job: 'api-tests', propagate: false)
+                }
+            }
 
         // Run both test suites in parallel
         parallel jobs
