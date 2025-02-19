@@ -1,8 +1,13 @@
 timeout(5) {
     node('maven') {
         stage('Prepare') {
-            echo "Starting parallel test execution"
-        }
+            def config = readYaml text: params.YAML_CONFIG ?: '''
+                test_types:
+                  - ui
+                  - api
+                '''
+            echo "Starting test execution for types: ${config.test_types}"
+        
 
         def jobs = [:]
         
@@ -24,7 +29,7 @@ timeout(5) {
 
         // Run both test suites in parallel
         parallel jobs
-
+        }
         stage('Results') {
             echo "All test jobs completed"
         }
